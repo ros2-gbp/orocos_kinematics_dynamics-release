@@ -2,6 +2,9 @@
 # Test CMake version
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+IF(POLICY CMP0048)
+  CMAKE_POLICY(SET CMP0048 NEW)
+ENDIF()
 #MARK_AS_ADVANCED( FORCE CMAKE_BACKWARDS_COMPATIBILITY )
 
 
@@ -45,15 +48,11 @@ ENDIF ( NOT CMAKE_BUILD_TYPE )
 
 SET( KDL_CFLAGS "")
 
+find_package(eigen3_cmake_module QUIET)
 find_package(Eigen3 QUIET)
-if(NOT Eigen3_FOUND)
-  message(STATUS "Did not find Eigen3 on system. Looking manually.")
-  include(${PROJ_SOURCE_DIR}/config/FindEigen3.cmake)
-endif()
-set(Eigen_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR}")
-message(STATUS "Using Eigen3 include dirs: ${Eigen_INCLUDE_DIR}")
-include_directories(${Eigen_INCLUDE_DIR})
-SET(KDL_CFLAGS "${KDL_CFLAGS} -I${Eigen_INCLUDE_DIR}")
+message(STATUS "Using Eigen3 include dirs: ${Eigen3_INCLUDE_DIRS}")
+include_directories(${Eigen3_INCLUDE_DIRS})
+SET(KDL_CFLAGS "${KDL_CFLAGS} -I${Eigen3_INCLUDE_DIRS}")
 
 # Check the platform STL containers capabilities
 include(config/CheckSTLContainers.cmake)
@@ -124,15 +123,15 @@ export(TARGETS orocos-kdl
 
 export(PACKAGE orocos_kdl)
 
-set(KDL_INCLUDE_DIRS ${KDL_INCLUDE_DIRS} ${Eigen_INCLUDE_DIR})
+set(KDL_INCLUDE_DIRS ${KDL_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS})
 
 CONFIGURE_FILE(KDLConfig.cmake.in
   ${PROJECT_BINARY_DIR}/orocos_kdl-config.cmake @ONLY)
 CONFIGURE_FILE(KDLConfigVersion.cmake.in
   ${PROJECT_BINARY_DIR}/orocos_kdl-config-version.cmake @ONLY)
 
-INSTALL(FILES ${PROJECT_BINARY_DIR}/orocos_kdl-config.cmake DESTINATION share/orocos_kdl)
-INSTALL(FILES ${PROJECT_BINARY_DIR}/orocos_kdl-config-version.cmake DESTINATION share/orocos_kdl)
-INSTALL(EXPORT OrocosKDLTargets DESTINATION share/orocos_kdl)
+INSTALL(FILES ${PROJECT_BINARY_DIR}/orocos_kdl-config.cmake DESTINATION share/orocos_kdl/cmake)
+INSTALL(FILES ${PROJECT_BINARY_DIR}/orocos_kdl-config-version.cmake DESTINATION share/orocos_kdl/cmake)
+INSTALL(EXPORT OrocosKDLTargets DESTINATION share/orocos_kdl/cmake)
 
 INSTALL(FILES package.xml DESTINATION share/orocos_kdl)
