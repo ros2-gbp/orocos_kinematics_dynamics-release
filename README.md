@@ -1,3 +1,29 @@
+## orocos_kinematics_dynamics (foxy) - 3.3.1-1
+
+The packages in the `orocos_kinematics_dynamics` repository were released into the `foxy` distro by running `/usr/bin/bloom-release --track foxy --rosdistro foxy orocos_kinematics_dynamics` on `Fri, 08 May 2020 17:44:28 -0000`
+
+The `orocos_kdl` package was released.
+
+These packages were explicitly ignored:
+- `python_orocos_kdl`
+
+Version of package(s) in repository `orocos_kinematics_dynamics`:
+
+- upstream repository: https://github.com/ros2/orocos_kinematics_dynamics.git
+- release repository: https://github.com/ros2-gbp/orocos_kinematics_dynamics-release.git
+- rosdistro version: `3.3.0-1`
+- old version: `3.3.0-1`
+- new version: `3.3.1-1`
+
+Versions of tools used:
+
+- bloom version: `0.9.7`
+- catkin_pkg version: `0.4.18`
+- rosdep version: `0.19.0`
+- rosdistro version: `0.8.1`
+- vcstools version: `0.1.42`
+
+
 ## orocos_kinematics_dynamics (foxy) - 3.3.0-1
 
 The packages in the `orocos_kinematics_dynamics` repository were released into the `foxy` distro by running `/usr/bin/bloom-release --rosdistro foxy --track foxy orocos_kinematics_dynamics` on `Wed, 29 Apr 2020 17:29:19 -0000`
