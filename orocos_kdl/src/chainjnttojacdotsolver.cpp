@@ -35,30 +35,15 @@ ChainJntToJacDotSolver::ChainJntToJacDotSolver(const Chain& _chain):
 {
 }
 
-void ChainJntToJacDotSolver::updateInternalDataStructures() {
-    locked_joints_.resize(chain.getNrOfJoints(),false);
-    this->setLockedJoints(locked_joints_);
-    jac_solver_.updateInternalDataStructures();
-    jac_.resize(chain.getNrOfJoints());
-    jac_dot_.resize(chain.getNrOfJoints());
-    fk_solver_.updateInternalDataStructures();
-}
-
 int ChainJntToJacDotSolver::JntToJacDot(const JntArrayVel& q_in, Twist& jac_dot_q_dot, int seg_nr)
 {
-    error = JntToJacDot(q_in,jac_dot_,seg_nr);
-    if (error != E_NOERROR) {
-        return error;
-    }
+    JntToJacDot(q_in,jac_dot_,seg_nr);
     MultiplyJacobian(jac_dot_,q_in.qdot,jac_dot_q_dot);
     return (error = E_NOERROR);
 }
 
 int ChainJntToJacDotSolver::JntToJacDot(const JntArrayVel& q_in, Jacobian& jdot, int seg_nr)
 {
-    if(locked_joints_.size() != chain.getNrOfJoints())
-        return (error = E_NOT_UP_TO_DATE);
-
     unsigned int segmentNr;
     if(seg_nr<0)
         segmentNr=chain.getNrOfSegments();
@@ -68,29 +53,32 @@ int ChainJntToJacDotSolver::JntToJacDot(const JntArrayVel& q_in, Jacobian& jdot,
     //Initialize Jacobian to zero since only segmentNr columns are computed
     SetToZero(jdot) ;
 
-    if(q_in.q.rows()!=chain.getNrOfJoints() || nr_of_unlocked_joints_!=jdot.columns())
-        return (error = E_SIZE_MISMATCH);
+    if(q_in.q.rows()!=chain.getNrOfJoints()||nr_of_unlocked_joints_!=jdot.columns())
+        return (error = E_JAC_DOT_FAILED);
     else if(segmentNr>chain.getNrOfSegments())
-        return (error = E_OUT_OF_RANGE);
+        return (error = E_JAC_DOT_FAILED);
 
     // First compute the jacobian in the Hybrid representation
-    if (jac_solver_.JntToJac(q_in.q,jac_,segmentNr) != E_NOERROR)
-        return (error = E_JACSOLVER_FAILED);
+    jac_solver_.JntToJac(q_in.q,jac_,segmentNr);
 
     // Change the reference frame and/or the reference point
-    if (representation_ != HYBRID) // If HYBRID do nothing is this is the default.
+    switch(representation_)
     {
-        if (fk_solver_.JntToCart(q_in.q,F_bs_ee_,segmentNr) != E_NOERROR)
-            return (error = E_FKSOLVERPOS_FAILED);
-        if (representation_ == BODYFIXED) {
+        case HYBRID:
+            // Do Nothing as it is the default in KDL;
+            break;
+        case BODYFIXED:
             // Ref Frame {ee}, Ref Point {ee}
+            fk_solver_.JntToCart(q_in.q,F_bs_ee_,segmentNr);
             jac_.changeBase(F_bs_ee_.M.Inverse());
-        } else if (representation_ == INERTIAL) {
+            break;
+        case INTERTIAL:
             // Ref Frame {bs}, Ref Point {bs}
+            fk_solver_.JntToCart(q_in.q,F_bs_ee_,segmentNr);
             jac_.changeRefPoint(-F_bs_ee_.p);
-        } else {
+            break;
+        default:
             return (error = E_JAC_DOT_FAILED);
-        }
     }
 
     // Let's compute Jdot in the corresponding representation
@@ -125,7 +113,7 @@ const Twist& ChainJntToJacDotSolver::getPartialDerivative(const KDL::Jacobian& J
             return getPartialDerivativeHybrid(J,joint_idx,column_idx);
         case BODYFIXED:
             return getPartialDerivativeBodyFixed(J,joint_idx,column_idx);
-        case INERTIAL:
+        case INTERTIAL:
             return getPartialDerivativeInertial(J,joint_idx,column_idx);
         default:
             SetToZero(this->t_djdq_);
@@ -211,15 +199,15 @@ void ChainJntToJacDotSolver::setRepresentation(const int& representation)
 {
     if(representation == HYBRID ||
         representation == BODYFIXED ||
-        representation == INERTIAL)   
+        representation == INTERTIAL)   
     this->representation_ = representation;
 }
 
 
-int ChainJntToJacDotSolver::setLockedJoints(const std::vector<bool>& locked_joints)
+int ChainJntToJacDotSolver::setLockedJoints(const std::vector< bool > locked_joints)
 {
     if(locked_joints.size()!=locked_joints_.size())
-        return E_SIZE_MISMATCH;
+        return -1;
     locked_joints_=locked_joints;
     nr_of_unlocked_joints_=0;
     for(unsigned int i=0;i<locked_joints_.size();i++){
@@ -227,15 +215,12 @@ int ChainJntToJacDotSolver::setLockedJoints(const std::vector<bool>& locked_join
             nr_of_unlocked_joints_++;
     }
 
-    return (error = E_NOERROR);
+    return 0;
 }
-
 const char* ChainJntToJacDotSolver::strError(const int error) const
 {
     if (E_JAC_DOT_FAILED == error) return "Jac Dot Failed";
-    else if (E_JACSOLVER_FAILED == error) return "Jac Solver Failed";
-    else if (E_FKSOLVERPOS_FAILED == error) return "FK Position Solver Failed";
-    return SolverI::strError(error);
+    else return SolverI::strError(error);
 }
 
 ChainJntToJacDotSolver::~ChainJntToJacDotSolver()

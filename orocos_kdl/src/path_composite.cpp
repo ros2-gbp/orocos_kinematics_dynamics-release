@@ -42,7 +42,6 @@
 
 #include "path_composite.hpp"
 #include "utilities/error.h"
-#include "utilities/scoped_ptr.hpp"
 #include <memory>
 
 namespace KDL {
@@ -51,7 +50,7 @@ namespace KDL {
 // simple linear search : TODO : make it binary search
 // uses cached_... variables
 // returns the relative path length within the segment
-// you probably want to use the cached_index variable
+// you propably want to use the cached_index variable
 double Path_Composite::Lookup(double s) const
 {
 	assert(s>=-1e-12);
@@ -128,18 +127,18 @@ void Path_Composite::Write(std::ostream& os)  {
 }
 
 int Path_Composite::GetNrOfSegments() {
-	return static_cast<int>(dv.size());
+	return dv.size();
 }
 
 Path* Path_Composite::GetSegment(int i) {
 	assert(i>=0);
-	assert(i<static_cast<int>(dv.size()));
+	assert(i<dv.size());
 	return gv[i].first;
 }
 
 double Path_Composite::GetLengthToEndOfSegment(int i) {
 	assert(i>=0);
-	assert(i<static_cast<int>(dv.size()));
+	assert(i<dv.size());
 	return dv[i];
 }
 

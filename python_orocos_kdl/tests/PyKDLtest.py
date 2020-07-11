@@ -24,16 +24,9 @@ import kinfamtest
 import framestest
 import frameveltest
 
-import sys
-
 suite = unittest.TestSuite()
 suite.addTest(framestest.suite())
 suite.addTest(frameveltest.suite())
 suite.addTest(kinfamtest.suite())
 
-result = unittest.TextTestRunner(verbosity=3).run(suite)
-
-if result.wasSuccessful():
-    sys.exit(0)
-else:
-    sys.exit(1)
+unittest.TextTestRunner(verbosity=3).run(suite)
