@@ -1,3 +1,29 @@
+## orocos_kinematics_dynamics (rolling) - 3.3.2-1
+
+The packages in the `orocos_kinematics_dynamics` repository were released into the `rolling` distro by running `/usr/bin/bloom-release --track rolling --rosdistro rolling orocos_kinematics_dynamics` on `Mon, 25 Jan 2021 20:21:04 -0000`
+
+The `orocos_kdl` package was released.
+
+These packages were explicitly ignored:
+- `python_orocos_kdl`
+
+Version of package(s) in repository `orocos_kinematics_dynamics`:
+
+- upstream repository: https://github.com/ros2/orocos_kinematics_dynamics.git
+- release repository: https://github.com/ros2-gbp/orocos_kinematics_dynamics-release.git
+- rosdistro version: `3.3.1-2`
+- old version: `3.3.1-2`
+- new version: `3.3.2-1`
+
+Versions of tools used:
+
+- bloom version: `0.10.0`
+- catkin_pkg version: `0.4.23`
+- rosdep version: `0.20.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## orocos_kinematics_dynamics (dashing) - 3.2.2-1
 
 The packages in the `orocos_kinematics_dynamics` repository were released into the `dashing` distro by running `/usr/bin/bloom-release -r dashing orocos_kinematics_dynamics --override-release-repository-push-url git@github.com:ros2-gbp/orocos_kinematics_dynamics-release` on `Sat, 11 Jul 2020 04:16:25 -0000`
